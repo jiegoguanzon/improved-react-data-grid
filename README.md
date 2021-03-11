@@ -16,10 +16,10 @@
 ## Install
 
 ```sh
-npm install react-data-grid
+npm install improved-react-data-grid
 ```
 
-react-data-grid is published as ES2019 modules, you'll probably want to transpile those down to scripts for the browsers you target using [Babel](https://babeljs.io/) and [browserslist](https://github.com/browserslist/browserslist).
+improved-react-data-grid is published as ES2019 modules, you'll probably want to transpile those down to scripts for the browsers you target using [Babel](https://babeljs.io/) and [browserslist](https://github.com/browserslist/browserslist).
 
 <details>
 <summary>Example browserslist configuration file</summary>
@@ -103,8 +103,8 @@ See [documentation](https://github.com/rollup/plugins/tree/master/packages/babel
 ## Usage
 
 ```jsx
-import DataGrid from 'react-data-grid';
-import 'react-data-grid/dist/react-data-grid.css';
+import DataGrid from 'improved-react-data-grid';
+import 'improved-react-data-grid/dist/improved-react-data-grid.css';
 
 const columns = [
   { key: 'id', name: 'ID' },
