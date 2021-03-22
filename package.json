@@ -1,6 +1,6 @@
 {
   "name": "improved-react-data-grid",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Excel-like grid component built with React, with editors, keyboard navigation, copy & paste, and the like. Forked from adazzle/react-data-grid",
   "keywords": [
@@ -10,7 +10,7 @@
   ],
   "repository": "github:jiegoguanzon/react-data-grid",
   "bugs": {
-    "url": "https://github.com/jiegoguanzon/react-data-grid/issues"
+    "url": "https://github.com/jiegoguanzon/improved-react-data-grid/issues"
   },
   "type": "module",
   "exports": {
