@@ -145,7 +145,11 @@ export interface DataGridProps<R, SR = unknown> extends SharedDivProps {
     event?: React.MouseEvent
   ) => void;
   /** Called when the grid is scrolled */
-  onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
+  onScroll?: (
+    event: React.UIEvent<HTMLDivElement>,
+    left: number,
+    top: number
+  ) => void;
   /** Called when a column is resized */
   onColumnResize?: (idx: number, width: number) => void;
   /** Function called whenever selected cell is changed */
@@ -494,7 +498,7 @@ function DataGrid<R, SR>(
     const { scrollTop, scrollLeft } = event.currentTarget;
     setScrollTop(scrollTop);
     setScrollLeft(scrollLeft);
-    onScroll?.(event);
+    onScroll?.(event, scrollLeft, scrollTop);
   }
 
   function getRawRowIdx(rowIdx: number) {
