@@ -935,7 +935,7 @@ function DataGrid<R, SR>(
       case "Home":
         // If row is selected then move focus to the first row
         if (isRowSelected) return { idx, rowIdx: 0 };
-        return ctrlKey ? { idx: 1, rowIdx: 0 } : { idx: 0, rowIdx };
+        return ctrlKey ? { idx: 1, rowIdx: 0 } : { idx: 1, rowIdx };
       case "End":
         // If row is selected then move focus to the last row.
         if (isRowSelected) return { idx, rowIdx: rows.length - 1 };
@@ -962,7 +962,11 @@ function DataGrid<R, SR>(
 
           return { idx: index, rowIdx };
         } else {
-          return { idx, rowIdx: rowIdx - Math.floor(clientHeight / rowHeight) };
+          const nextRowIdx = Math.max(
+            0,
+            rowIdx - Math.floor(clientHeight / rowHeight)
+          );
+          return { idx, rowIdx: nextRowIdx };
         }
       case "PageDown":
         if (altKey) {
@@ -983,9 +987,13 @@ function DataGrid<R, SR>(
             } else break;
           }
 
-          return { idx: index, rowIdx };
+          return { idx: index || 1, rowIdx };
         } else {
-          return { idx, rowIdx: rowIdx + Math.floor(clientHeight / rowHeight) };
+          const nextRowIdx = Math.min(
+            rawRows.length - 1,
+            rowIdx + Math.floor(clientHeight / rowHeight)
+          );
+          return { idx, rowIdx: nextRowIdx };
         }
       default:
         return selectedPosition;
@@ -1032,7 +1040,7 @@ function DataGrid<R, SR>(
       nextPosition,
     });
 
-    selectCell(nextPosition, false, shiftKey);
+    selectCell(nextPosition, false, key === "Tab" ? false : shiftKey);
   }
 
   function getDraggedOverCellIdx(currentRowIdx: number): number | undefined {
