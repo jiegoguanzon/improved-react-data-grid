@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ReactElement } from "react";
 import type { SortDirection } from "./enums";
-import React, { } from type;
-{ ReactElement } from "react";
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 

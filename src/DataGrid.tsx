@@ -1,12 +1,11 @@
 import clsx from "clsx";
 import React, {
   forwardRef,
-  MouseEvent,
   useCallback,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
-  useState
+  useState,
 } from "react";
 import type { CellNavigationMode, SortDirection } from "./enums";
 import FilterRow from "./FilterRow";
@@ -16,7 +15,7 @@ import {
   useGridDimensions,
   useLatestFunc,
   useViewportColumns,
-  useViewportRows
+  useViewportRows,
 } from "./hooks";
 import Row from "./Row";
 import SummaryRow from "./SummaryRow";
@@ -31,7 +30,7 @@ import type {
   RowRendererProps,
   RowsChangeData,
   SelectedCellProps,
-  SelectRowEvent
+  SelectRowEvent,
 } from "./types";
 import {
   assertIsValidKeyGetter,
@@ -40,7 +39,7 @@ import {
   isCtrlKeyHeldDown,
   isDefaultCellInput,
   isSelectedCellEditable,
-  onEditorNavigation
+  onEditorNavigation,
 } from "./utils";
 
 interface SelectCellState extends Position {
@@ -143,7 +142,7 @@ export interface DataGridProps<R, SR = unknown> extends SharedDivProps {
     rowIdx: number,
     row: R,
     column: CalculatedColumn<R, SR>,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => void;
   /** Called when the grid is scrolled */
   onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
