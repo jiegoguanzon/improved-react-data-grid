@@ -468,8 +468,16 @@ function DataGrid<R, SR>(
       return;
     }
 
-    // Prevent Ctrl + a from entering cell editing mode
-    if (event.key === "a" && isCtrlKeyHeldDown(event)) {
+    // Prevent certain key combinations from putting cell in edit mode
+    if (
+      (isCtrlKeyHeldDown(event) &&
+        (key === "a" ||
+          key === "d" ||
+          key === "r" ||
+          key === "+" ||
+          key === "-")) ||
+      (event.key === " " && event.shiftKey)
+    ) {
       return;
     }
 
