@@ -475,7 +475,8 @@ function DataGrid<R, SR>(
           key === "d" ||
           key === "r" ||
           key === "+" ||
-          key === "-")) ||
+          key === "-" ||
+          key === " ")) ||
       (event.key === " " && event.shiftKey)
     ) {
       return;
