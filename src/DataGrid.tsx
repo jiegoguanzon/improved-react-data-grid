@@ -468,6 +468,11 @@ function DataGrid<R, SR>(
       return;
     }
 
+    // Prevent Ctrl + a from entering cell editing mode
+    if (event.key === "a" && isCtrlKeyHeldDown(event)) {
+      return;
+    }
+
     switch (event.key) {
       case "Escape":
         setCopiedCell(null);
