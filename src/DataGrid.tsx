@@ -1222,8 +1222,16 @@ function DataGrid<R, SR>(
     selectedPosition.mode === "EDIT" &&
     rows[selectedPosition.rowIdx] !== selectedPosition.originalRow
   ) {
-    // Discard changes if rows are updated from outside
-    closeEditor();
+    const colKey = columns[selectedPosition.idx].key as keyof R;
+    const newOriginalRow = rows[selectedPosition.rowIdx] as R;
+    const currentValue = selectedPosition.row[colKey];
+    const newEditedRow = { ...newOriginalRow, [colKey]: currentValue };
+
+    setSelectedPosition((oldData) => ({
+      ...oldData,
+      originalRow: newOriginalRow,
+      row: newEditedRow,
+    }));
   }
 
   return (
