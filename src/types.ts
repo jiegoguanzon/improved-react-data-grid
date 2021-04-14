@@ -121,6 +121,8 @@ export interface EditorProps<TRow, TSummaryRow = unknown>
   column: Readonly<CalculatedColumn<TRow, TSummaryRow>>;
   top: number;
   left: number;
+  isFromExternalChange: boolean;
+  setIsFromExternalChange: (value: boolean) => void;
 }
 
 export interface HeaderRendererProps<TRow, TSummaryRow = unknown> {
@@ -201,6 +203,8 @@ export interface RowRendererProps<TRow, TSummaryRow = unknown>
     shiftKey?: boolean
   ) => void;
   selectRow: (selectRowEvent: SelectRowEvent) => void;
+  isFromExternalChange: boolean;
+  setIsFromExternalChange: (value: boolean) => void;
 }
 
 export interface FilterRendererProps<

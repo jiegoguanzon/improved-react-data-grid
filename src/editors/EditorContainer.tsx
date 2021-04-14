@@ -1,12 +1,13 @@
-import { createPortal } from 'react-dom';
-
-import type { EditorProps } from '../types';
-import { useClickOutside } from '../hooks';
+import { createPortal } from "react-dom";
+import { useClickOutside } from "../hooks";
+import type { EditorProps } from "../types";
 
 export default function EditorContainer<R, SR>({
   row,
   column,
   onRowChange,
+  isFromExternalChange,
+  setIsFromExternalChange,
   ...props
 }: EditorProps<R, SR>) {
   const onClickCapture = useClickOutside(() => onRowChange(row, true));
@@ -18,6 +19,8 @@ export default function EditorContainer<R, SR>({
         row={row}
         column={column}
         onRowChange={onRowChange}
+        isFromExternalChange={isFromExternalChange}
+        setIsFromExternalChange={setIsFromExternalChange}
         {...props}
       />
     </div>

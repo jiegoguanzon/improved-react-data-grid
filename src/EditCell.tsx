@@ -1,18 +1,20 @@
-import { useState, useCallback } from 'react';
-import clsx from 'clsx';
+import clsx from "clsx";
+import { useCallback, useState } from "react";
+import EditorContainer from "./editors/EditorContainer";
+import type { CellRendererProps, Omit, SharedEditorProps } from "./types";
+import { getCellStyle } from "./utils";
 
-import EditorContainer from './editors/EditorContainer';
-import { getCellStyle } from './utils';
-import type { CellRendererProps, SharedEditorProps, Omit } from './types';
-
-type SharedCellRendererProps<R, SR> = Pick<CellRendererProps<R, SR>,
-  | 'rowIdx'
-  | 'row'
-  | 'column'
+type SharedCellRendererProps<R, SR> = Pick<
+  CellRendererProps<R, SR>,
+  "rowIdx" | "row" | "column"
 >;
 
-interface EditCellProps<R, SR> extends SharedCellRendererProps<R, SR>, Omit<React.HTMLAttributes<HTMLDivElement>, 'style' | 'children'> {
+interface EditCellProps<R, SR>
+  extends SharedCellRendererProps<R, SR>,
+    Omit<React.HTMLAttributes<HTMLDivElement>, "style" | "children"> {
   editorProps: SharedEditorProps<R>;
+  isFromExternalChange: boolean;
+  setIsFromExternalChange: (value: boolean) => void;
 }
 
 export default function EditCell<R, SR>({
@@ -21,11 +23,16 @@ export default function EditCell<R, SR>({
   row,
   rowIdx,
   editorProps,
+  isFromExternalChange,
+  setIsFromExternalChange,
   ...props
 }: EditCellProps<R, SR>) {
-  const [dimensions, setDimensions] = useState<{ left: number; top: number } | null>(null);
+  const [dimensions, setDimensions] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
 
-  const cellRef = useCallback(node => {
+  const cellRef = useCallback((node) => {
     if (node !== null) {
       const { left, top } = node.getBoundingClientRect();
       setDimensions({ left, top });
@@ -34,20 +41,21 @@ export default function EditCell<R, SR>({
 
   const { cellClass } = column;
   className = clsx(
-    'rdg-cell',
+    "rdg-cell",
     {
-      'rdg-cell-frozen': column.frozen,
-      'rdg-cell-frozen-last': column.isLastFrozenColumn
+      "rdg-cell-frozen": column.frozen,
+      "rdg-cell-frozen-last": column.isLastFrozenColumn,
     },
-    'rdg-cell-selected',
-    'rdg-cell-editing',
-    typeof cellClass === 'function' ? cellClass(row) : cellClass,
+    "rdg-cell-selected",
+    "rdg-cell-editing",
+    typeof cellClass === "function" ? cellClass(row) : cellClass,
     className
   );
 
   function getCellContent() {
     if (dimensions === null) return;
-    const { scrollTop: docTop, scrollLeft: docLeft } = document.scrollingElement ?? document.documentElement;
+    const { scrollTop: docTop, scrollLeft: docLeft } =
+      document.scrollingElement ?? document.documentElement;
     const { left, top } = dimensions;
     const gridLeft = left + docLeft;
     const gridTop = top + docTop;
@@ -59,6 +67,8 @@ export default function EditCell<R, SR>({
         column={column}
         left={gridLeft}
         top={gridTop}
+        isFromExternalChange={isFromExternalChange}
+        setIsFromExternalChange={setIsFromExternalChange}
       />
     );
   }

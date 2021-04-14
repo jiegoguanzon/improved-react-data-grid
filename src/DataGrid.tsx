@@ -257,6 +257,9 @@ function DataGrid<R, SR>(
   const [draggedOverRowIdx, setOverRowIdx] = useState<number | undefined>(
     undefined
   );
+  const [isFromExternalChange, setIsFromExternalChange] = useState<boolean>(
+    false
+  );
 
   /**
    * refs
@@ -1206,6 +1209,8 @@ function DataGrid<R, SR>(
           onRowChange={handleFormatterRowChangeWrapper}
           selectCell={selectCellWrapper}
           selectRow={selectRowWrapper}
+          isFromExternalChange={isFromExternalChange}
+          setIsFromExternalChange={setIsFromExternalChange}
         />
       );
     }
@@ -1236,6 +1241,7 @@ function DataGrid<R, SR>(
       originalRow: newOriginalRow,
       row: newEditedRow,
     }));
+    setIsFromExternalChange(true);
   }
 
   return (
