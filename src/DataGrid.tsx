@@ -491,7 +491,8 @@ function DataGrid<R, SR>(
           key === "+" ||
           key === "-" ||
           key === " ")) ||
-      (event.key === " " && event.shiftKey)
+      (event.key === " " && event.shiftKey) ||
+      event.key === "Delete"
     ) {
       return;
     }
