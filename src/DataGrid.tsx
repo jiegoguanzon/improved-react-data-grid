@@ -68,6 +68,7 @@ export interface DataGridHandle {
     openEditor?: boolean,
     shiftKey?: boolean
   ) => void;
+  updateSelectedPositionRowIdx: (rowIdx: number) => void;
 }
 
 type SharedDivProps = Pick<
@@ -360,6 +361,9 @@ function DataGrid<R, SR>(
       });
     },
     selectCell,
+    updateSelectedPositionRowIdx(rowIdx: number) {
+      setSelectedPosition((prevPosition) => ({ ...prevPosition, rowIdx }));
+    },
   }));
 
   /**
