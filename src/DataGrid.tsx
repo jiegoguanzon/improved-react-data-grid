@@ -371,6 +371,9 @@ function DataGrid<R, SR>(
     updateSelectedPositionRowIdx(rowIdx: number) {
       setSelectedPosition((prevPosition) => ({ ...prevPosition, rowIdx }));
     },
+    focus() {
+      focusSinkRef.current!.focus({ preventScroll: true });
+    },
   }));
 
   /**
