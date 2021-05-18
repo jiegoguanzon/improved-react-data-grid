@@ -70,6 +70,7 @@ export interface DataGridHandle {
     shiftKey?: boolean
   ) => void;
   updateSelectedPositionRowIdx: (rowIdx: number) => void;
+  focus: () => void;
 }
 
 type SharedDivProps = Pick<
