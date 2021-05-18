@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -134,6 +135,8 @@ export interface DataGridProps<R, SR = unknown> extends SharedDivProps {
   onExpandedGroupIdsChange?: (expandedGroupIds: Set<unknown>) => void;
   onFill?: (event: FillEvent<R>) => R[];
   onPaste?: (event: PasteEvent<R>) => R;
+  scrollEdgeSize?: number;
+  scrollEdgeStep?: number;
 
   /**
    * Custom renderers
@@ -223,6 +226,8 @@ function DataGrid<R, SR>(
     onAltArrowKeyPress,
     onFill,
     onPaste,
+    scrollEdgeSize,
+    scrollEdgeStep,
     // Toggles and modes
     enableFilterRow = false,
     cellNavigationMode = "NONE",
@@ -249,17 +254,16 @@ function DataGrid<R, SR>(
   const [selectedPosition, setSelectedPosition] = useState<
     SelectCellState | EditCellState<R>
   >({ idx: -1, rowIdx: -1, mode: "SELECT" });
-  const [copiedCell, setCopiedCell] = useState<{
-    row: R;
-    columnKey: string;
-  } | null>(null);
+  const [copiedCell, setCopiedCell] =
+    useState<{
+      row: R;
+      columnKey: string;
+    } | null>(null);
   const [isDragging, setDragging] = useState(false);
-  const [draggedOverRowIdx, setOverRowIdx] = useState<number | undefined>(
-    undefined
-  );
-  const [isFromExternalChange, setIsFromExternalChange] = useState<boolean>(
-    false
-  );
+  const [draggedOverRowIdx, setOverRowIdx] =
+    useState<number | undefined>(undefined);
+  const [isFromExternalChange, setIsFromExternalChange] =
+    useState<boolean>(false);
 
   /**
    * refs
@@ -484,13 +488,7 @@ function DataGrid<R, SR>(
 
     // Prevent certain key combinations from putting cell in edit mode
     if (
-      (isCtrlKeyHeldDown(event) &&
-        (key === "a" ||
-          key === "d" ||
-          key === "r" ||
-          key === "+" ||
-          key === "-" ||
-          key === " ")) ||
+      isCtrlKeyHeldDown(event) ||
       (event.key === " " && event.shiftKey) ||
       event.key === "Delete"
     ) {
@@ -1245,6 +1243,107 @@ function DataGrid<R, SR>(
     setIsFromExternalChange(true);
   }
 
+  let scrollTimer: number | undefined = undefined;
+
+  const handleEdgeScroll = useCallback(
+    (e: MouseEvent) => {
+      if (e.buttons === 1 && gridRef && gridRef.current) {
+        const { current } = gridRef;
+
+        const edgeSize = scrollEdgeSize || 100;
+
+        const pointerX = e.clientX;
+        const pointerY = e.clientY;
+
+        const viewportWidth = current.clientWidth;
+        const viewportHeight = current.clientHeight;
+
+        const edgeTop = edgeSize;
+        const edgeBottom = viewportHeight - edgeSize;
+        const edgeLeft = totalFrozenColumnWidth + edgeSize;
+        const edgeRight = viewportWidth - edgeSize;
+
+        const inLeftEdge = pointerX < edgeLeft;
+        const inRightEdge = pointerX > edgeRight;
+        const inTopEdge = pointerY < edgeTop;
+        const inBottomEdge = pointerY > edgeBottom;
+
+        if (!(inLeftEdge || inRightEdge || inTopEdge || inBottomEdge)) {
+          clearTimeout(scrollTimer);
+          return;
+        }
+
+        const maxScrollLeft = totalColumnWidth;
+        const maxScrollTop = rowsCount * rowHeight;
+
+        const checkForWindowScroll = () => {
+          clearTimeout(scrollTimer);
+
+          if (adjustWindowScroll()) {
+            scrollTimer = setTimeout(checkForWindowScroll, 30);
+          }
+        };
+
+        const adjustWindowScroll = () => {
+          const currentScrollLeft = current.scrollLeft;
+          const currentScrollTop = current.scrollTop;
+
+          const canScrollTop = currentScrollTop > 0;
+          const canScrollBottom = currentScrollTop < maxScrollTop;
+          const canScrollLeft = currentScrollLeft > 0;
+          const canScrollRight = currentScrollLeft < maxScrollLeft;
+
+          let nextScrollLeft = currentScrollLeft;
+          let nextScrollTop = currentScrollTop;
+
+          const maxScrollStep = scrollEdgeStep || 20;
+
+          if (inRightEdge && canScrollRight) {
+            const intensity = (pointerX - edgeRight) / edgeSize;
+            nextScrollLeft = nextScrollLeft + maxScrollStep * intensity;
+          } else if (inLeftEdge && canScrollLeft) {
+            const intensity = (edgeLeft - pointerX) / edgeSize;
+            nextScrollLeft = nextScrollLeft - maxScrollStep * intensity;
+          }
+
+          if (inTopEdge && canScrollTop) {
+            const intensity = (edgeTop - pointerY) / edgeSize;
+            nextScrollTop = nextScrollTop - maxScrollStep * intensity;
+          } else if (inBottomEdge && canScrollBottom) {
+            const intensity = (pointerY - edgeBottom) / edgeSize;
+            nextScrollTop = nextScrollTop + maxScrollStep * intensity;
+          }
+
+          nextScrollLeft = Math.max(0, Math.min(maxScrollLeft, nextScrollLeft));
+          nextScrollTop = Math.max(0, Math.min(maxScrollTop, nextScrollTop));
+
+          if (
+            nextScrollLeft !== currentScrollLeft ||
+            nextScrollTop !== currentScrollTop
+          ) {
+            current.scrollTo({
+              top: nextScrollTop,
+              left: nextScrollLeft,
+            });
+            return true;
+          } else return false;
+        };
+
+        checkForWindowScroll();
+      } else {
+        clearTimeout(scrollTimer);
+      }
+    },
+    [scrollEdgeSize, scrollEdgeStep]
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleEdgeScroll);
+    return () => {
+      window.removeEventListener("mousemove", handleEdgeScroll);
+    };
+  }, []);
+
   return (
     <div
       role={hasGroups ? "treegrid" : "grid"}
@@ -1260,14 +1359,14 @@ function DataGrid<R, SR>(
         className
       )}
       style={
-        ({
+        {
           ...style,
           "--header-row-height": `${headerRowHeight}px`,
           "--filter-row-height": `${headerFiltersHeight}px`,
           "--row-width": `${totalColumnWidth}px`,
           "--row-height": `${rowHeight}px`,
           ...layoutCssVars,
-        } as unknown) as React.CSSProperties
+        } as unknown as React.CSSProperties
       }
       ref={gridRef}
       onScroll={handleScroll}
