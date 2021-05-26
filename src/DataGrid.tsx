@@ -1259,20 +1259,28 @@ function DataGrid<R, SR>(
         const pointerX = e.clientX;
         const pointerY = e.clientY;
 
-        const viewportWidth = current.clientWidth;
-        const viewportHeight = current.clientHeight;
+        const boundingRect = current.getBoundingClientRect();
 
-        const edgeTop = edgeSize;
-        const edgeBottom = viewportHeight - edgeSize;
-        const edgeLeft = totalFrozenColumnWidth + edgeSize;
-        const edgeRight = viewportWidth - edgeSize;
+        const edgeTop = boundingRect.top + edgeSize;
+        const edgeBottom = boundingRect.bottom - edgeSize;
+        const edgeLeft = boundingRect.left + totalFrozenColumnWidth + edgeSize;
+        const edgeRight = boundingRect.right - edgeSize;
+
+        const inElement =
+          pointerX > boundingRect.left &&
+          pointerX < boundingRect.right &&
+          pointerY > boundingRect.top &&
+          pointerY < boundingRect.bottom;
 
         const inLeftEdge = pointerX < edgeLeft;
         const inRightEdge = pointerX > edgeRight;
         const inTopEdge = pointerY < edgeTop;
         const inBottomEdge = pointerY > edgeBottom;
 
-        if (!(inLeftEdge || inRightEdge || inTopEdge || inBottomEdge)) {
+        if (
+          !inElement ||
+          !(inLeftEdge || inRightEdge || inTopEdge || inBottomEdge)
+        ) {
           clearTimeout(scrollTimer);
           return;
         }
