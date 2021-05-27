@@ -164,7 +164,11 @@ export interface DataGridProps<R, SR = unknown> extends SharedDivProps {
   /** Called when a column is resized */
   onColumnResize?: (idx: number, width: number) => void;
   /** Function called whenever selected cell is changed */
-  onSelectedCellChange?: (position: Position, shiftKey?: boolean) => void;
+  onSelectedCellChange?: (
+    position: Position,
+    shiftKey?: boolean,
+    resetSelection?: boolean
+  ) => void;
   /** Called when arrow keys are pressed while alt is pressed */
   onAltArrowKeyPress?: (key: string) => void;
 
@@ -745,7 +749,8 @@ function DataGrid<R, SR>(
   function selectCell(
     position: Position,
     enableEditor = false,
-    shiftKey = false
+    shiftKey = false,
+    resetSelection = true
   ): void {
     if (!isCellWithinBounds(position)) return;
     commitEditorChanges();
@@ -762,7 +767,7 @@ function DataGrid<R, SR>(
     } else {
       setSelectedPosition({ ...position, mode: "SELECT" });
     }
-    onSelectedCellChange?.({ ...position }, shiftKey);
+    onSelectedCellChange?.({ ...position }, shiftKey, resetSelection);
   }
 
   function closeEditor() {
