@@ -173,7 +173,12 @@ export interface CellRendererProps<TRow, TSummaryRow = unknown>
     column: CalculatedColumn<TRow, TSummaryRow>,
     event?: React.MouseEvent
   ) => void;
-  selectCell: (position: Position, enableEditor?: boolean) => void;
+  selectCell: (
+    position: Position,
+    enableEditor?: boolean,
+    shiftKey?: boolean,
+    resetSelection?: boolean
+  ) => void;
   selectRow: (selectRowEvent: SelectRowEvent) => void;
 }
 
@@ -200,7 +205,8 @@ export interface RowRendererProps<TRow, TSummaryRow = unknown>
   selectCell: (
     position: Position,
     enableEditor?: boolean,
-    shiftKey?: boolean
+    shiftKey?: boolean,
+    resetSelection?: boolean
   ) => void;
   selectRow: (selectRowEvent: SelectRowEvent) => void;
   isFromExternalChange: boolean;
