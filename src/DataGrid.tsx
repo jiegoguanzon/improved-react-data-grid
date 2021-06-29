@@ -259,16 +259,17 @@ function DataGrid<R, SR>(
   const [selectedPosition, setSelectedPosition] = useState<
     SelectCellState | EditCellState<R>
   >({ idx: -1, rowIdx: -1, mode: "SELECT" });
-  const [copiedCell, setCopiedCell] =
-    useState<{
-      row: R;
-      columnKey: string;
-    } | null>(null);
+  const [copiedCell, setCopiedCell] = useState<{
+    row: R;
+    columnKey: string;
+  } | null>(null);
   const [isDragging, setDragging] = useState(false);
-  const [draggedOverRowIdx, setOverRowIdx] =
-    useState<number | undefined>(undefined);
-  const [isFromExternalChange, setIsFromExternalChange] =
-    useState<boolean>(false);
+  const [draggedOverRowIdx, setOverRowIdx] = useState<number | undefined>(
+    undefined
+  );
+  const [isFromExternalChange, setIsFromExternalChange] = useState<boolean>(
+    false
+  );
 
   /**
    * refs
@@ -494,15 +495,6 @@ function DataGrid<R, SR>(
       return;
     }
 
-    // Prevent certain key combinations from putting cell in edit mode
-    if (
-      isCtrlKeyHeldDown(event) ||
-      (event.key === " " && event.shiftKey) ||
-      event.key === "Delete"
-    ) {
-      return;
-    }
-
     switch (event.key) {
       case "Escape":
         setCopiedCell(null);
@@ -520,6 +512,15 @@ function DataGrid<R, SR>(
         navigate(event);
         break;
       default:
+        // Prevent certain key combinations from putting cell in edit mode
+        if (
+          isCtrlKeyHeldDown(event) ||
+          (event.key === " " && event.shiftKey) ||
+          event.key === "Delete"
+        ) {
+          return;
+        }
+
         handleCellInput(event);
         break;
     }
@@ -542,6 +543,7 @@ function DataGrid<R, SR>(
 
   function updateRow(rowIdx: number, row: R) {
     if (typeof onRowsChange !== "function") return;
+    if (row === rawRows[rowIdx]) return;
     const updatedRows = [...rawRows];
     updatedRows[rowIdx] = row;
     onRowsChange(updatedRows, {
@@ -650,11 +652,16 @@ function DataGrid<R, SR>(
     const indexes: number[] = [];
 
     for (let i = startRowIndex; i < endRowIndex; i++) {
-      updatedRows[i] = updatedTargetRows[i - startRowIndex];
-      indexes.push(i);
+      const targetRowIdx = i - startRowIndex;
+      if (updatedRows[i] !== updatedTargetRows[targetRowIdx]) {
+        updatedRows[i] = updatedTargetRows[i - startRowIndex];
+        indexes.push(i);
+      }
     }
 
-    onRowsChange(updatedRows, { indexes, column });
+    if (indexes.length > 0) {
+      onRowsChange(updatedRows, { indexes, column });
+    }
     setDraggedOverRowIdx(undefined);
   }
 
@@ -698,11 +705,16 @@ function DataGrid<R, SR>(
     const indexes: number[] = [];
 
     for (let i = rowIdx + 1; i < updatedRows.length; i++) {
-      updatedRows[i] = updatedTargetRows[i - rowIdx - 1];
-      indexes.push(i);
+      const targetRowIdx = i - rowIdx - 1;
+      if (updatedRows[i] !== updatedTargetRows[targetRowIdx]) {
+        updatedRows[i] = updatedTargetRows[i - rowIdx - 1];
+        indexes.push(i);
+      }
     }
 
-    onRowsChange(updatedRows, { indexes, column });
+    if (indexes.length > 0) {
+      onRowsChange(updatedRows, { indexes, column });
+    }
   }
 
   function handleEditorRowChange(row: Readonly<R>, commitChanges?: boolean) {
@@ -1376,14 +1388,14 @@ function DataGrid<R, SR>(
         className
       )}
       style={
-        {
+        ({
           ...style,
           "--header-row-height": `${headerRowHeight}px`,
           "--filter-row-height": `${headerFiltersHeight}px`,
           "--row-width": `${totalColumnWidth}px`,
           "--row-height": `${rowHeight}px`,
           ...layoutCssVars,
-        } as unknown as React.CSSProperties
+        } as unknown) as React.CSSProperties
       }
       ref={gridRef}
       onScroll={handleScroll}
